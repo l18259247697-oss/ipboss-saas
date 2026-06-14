@@ -1,0 +1,36 @@
+# ===== 密钥 / 隐私（绝不上传）=====
+.env
+backend/.env
+
+# data/ : config.json(含key) + app.db(用户) + faces/ + voices/
+data/
+# outputs/ : 生成的成片/配音/中间产物
+outputs/
+
+# 各种数据库文件（含 douyin_*.db、app.db）
+*.db
+*.db-shm
+*.db-wal
+
+# ===== 第三方引擎 & 模型权重（体积大/单独安装）=====
+engines/
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.onnx
+
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# ===== 系统 / 编辑器 =====
+.DS_Store
+.idea/
+.vscode/
+*.log
+tmp/

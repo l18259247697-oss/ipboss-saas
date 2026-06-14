@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>一键追爆 · 全自动IP智能体</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- 登录/注册 -->
+<div class="auth-mask" id="authMask">
+  <div class="auth-card">
+    <h2 id="brandName">一键追爆</h2>
+    <div class="sub" id="brandSlogan">全自动 IP 智能体</div>
+    <div class="auth-tabs">
+      <div class="on" id="tabLogin" onclick="switchTab('login')">登录</div>
+      <div id="tabReg" onclick="switchTab('reg')">注册</div>
+    </div>
+    <label>用户名</label>
+    <input id="authUser" placeholder="请输入用户名">
+    <label>密码</label>
+    <input id="authPwd" type="password" placeholder="请输入密码">
+    <button class="btn" style="width:100%;margin-top:20px" onclick="doAuth()" id="authBtn">登 录</button>
+    <div class="err" id="authErr"></div>
+    <div class="sub" style="margin-top:14px">注册即送点数，立即体验全自动出片</div>
+  </div>
+</div>
+
+<!-- 主应用 -->
+<div id="appMain" class="hidden">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">🔥</div>
+      <span id="topBrand">一键追爆</span>
+      <span class="slogan" id="topSlogan">全自动IP智能体</span>
+    </div>
+    <div class="userbox">
+      <span class="credit">点数 <b id="creditNum">0</b></span>
+      <span id="hello"></span>
+      <a id="adminLink" href="/admin" class="hidden">后台</a>
+      <button class="btn ghost" onclick="logout()">退出</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="headline">
+      <h1>一键追爆 <span class="hl">——</span> 全自动IP智能体</h1>
+      <p>粘贴一条爆款链接，自动扒文案 → 改写成你行业 → AI配音 → 数字人口播出片</p>
+    </div>
+
+    <!-- 步骤条 -->
+    <div class="steps" id="steps"></div>
+
+    <div class="grid">
+      <!-- 左：输入 -->
+      <div class="card">
+        <h3><span class="n">01</span> 自动化提取 · 输入</h3>
+
+        <label>爆款视频链接（抖音分享口令直接粘贴）</label>
+        <textarea id="link" placeholder="例：7.69 复制打开抖音…… https://v.douyin.com/xxxx/"></textarea>
+
+        <label>你的行业 / 产品</label>
+        <input id="industry" placeholder="例：本地火锅店 / 美容院 / 汽修 / 建材">
+
+        <label>补充要求（可选）</label>
+        <input id="extra" placeholder="例：突出9.9元引流套餐，引导到店">
+
+        <div class="row">
+          <div>
+            <label>配音音色</label>
+            <select id="voice"></select>
+          </div>
+          <div>
+            <label>语速</label>
+            <select id="speed">
+              <option value="0.8">0.8x</option>
+              <option value="1.0" selected>1.0x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+            </select>
+          </div>
+        </div>
+
+        <label>配音方式</label>
+        <div class="modes">
+          <div class="mode on" id="vmPreset" onclick="setVoiceMode('preset')">🎙 预置音色</div>
+          <div class="mode" id="vmClone" onclick="setVoiceMode('clone')">🧬 克隆我的声音</div>
+        </div>
+        <div id="cloneBox" class="face-up hidden" style="margin-top:10px">
+          <input type="file" id="voiceFile" accept="audio/*,video/mp4,video/quicktime" style="display:none" onchange="uploadVoice()">
+          <div class="face-drop" id="voiceDrop" onclick="document.getElementById('voiceFile').click()">
+            <div id="voiceEmpty">🎤 上传一段你的声音（10–30 秒清晰人声）<br><span class="tip">用来克隆你的声线；越清楚越像</span></div>
+            <audio id="voicePreview" class="hidden" controls></audio>
+          </div>
+          <input id="voiceRefText" placeholder="（可选）这段录音里你说的那句话，填上更准" style="margin-top:8px">
+          <div class="face-status" id="voiceStatus"></div>
+          <div class="placeholder-tip" id="cloneEngineTip">提示：声音克隆引擎在「部署到服务器」后启用；现在本机会暂时用预置音色代替。</div>
+        </div>
+
+        <label>口播底版（你的脸 · 照片或视频）<span id="faceReq" style="color:var(--orange)"></span></label>
+        <div class="face-up" id="faceUp">
+          <input type="file" id="faceFile" accept="image/*,video/mp4,video/quicktime" style="display:none" onchange="uploadFace()">
+          <div class="face-drop" id="faceDrop" onclick="document.getElementById('faceFile').click()">
+            <div id="faceEmpty">📷 点击上传一张正脸照片（推荐·最快最省电）<br><span class="tip">也可传短视频，会自动截前15秒；正对镜头、光线清晰效果最好</span></div>
+            <img id="facePreview" class="hidden" src="">
+            <video id="facePreviewV" class="hidden" muted></video>
+          </div>
+          <div class="face-status" id="faceStatus"></div>
+        </div>
+
+        <details class="ph-avatars">
+          <summary>没有底版？用占位形象（仅出演示卡，不对口型）</summary>
+          <div class="avatars" id="avatars"></div>
+        </details>
+
+        <label>生成模式</label>
+        <div class="modes">
+          <div class="mode on" id="modeAuto" onclick="setMode('auto')">⚡ 全自动模式</div>
+          <div class="mode" id="modeStep" onclick="setMode('step')">🛠 分步可调</div>
+        </div>
+
+        <button class="btn gobtn" id="goBtn" onclick="startJob()">⚡ 一键追爆 · 自动出片</button>
+      </div>
+
+      <!-- 右：结果 -->
+      <div class="card result-box">
+        <h3><span class="n">出</span> 成片结果</h3>
+        <div id="emptyState" class="empty">填好左侧信息，点击「一键追爆」<br>这里会实时显示每一步的产出</div>
+
+        <div id="running" class="hidden">
+          <div class="msg" id="runMsg">准备中…</div>
+          <div class="progress-line"><i id="progBar"></i></div>
+        </div>
+
+        <div id="resultArea" class="hidden">
+          <div class="field" id="fTranscript">
+            <div class="ft"><span>① 原视频文案</span></div>
+            <div class="fc" id="vTranscript"></div>
+          </div>
+          <div class="field" id="fRewritten">
+            <div class="ft"><span>② 改写后文案（你的行业）</span>
+              <button class="copybtn" onclick="copyText('vRewritten')">复制</button></div>
+            <div class="fc" id="vRewritten"></div>
+          </div>
+          <div class="field" id="fAudio">
+            <div class="ft"><span>③ AI 配音</span></div>
+            <audio id="vAudio" controls></audio>
+          </div>
+          <div class="field" id="fVideo">
+            <div class="ft"><span>⑥ 最终成片</span>
+              <a class="copybtn" id="dlVideo" download>下载视频</a></div>
+            <video id="vVideo" controls></video>
+            <div class="placeholder-tip hidden" id="phTip">
+              当前为「占位成片」（头像卡+配音）。接入数字人云端API后，这里会变成真·对口型口播视频。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      © <span id="footBrand">一键追爆</span> · 基于开源能力构建（edge-tts / Whisper / FFmpeg）｜
+      请确保使用自有或已授权素材，遵守平台规则
+    </div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

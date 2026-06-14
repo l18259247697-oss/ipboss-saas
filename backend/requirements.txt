@@ -1,0 +1,10 @@
+# 一键追爆 SaaS 后端依赖
+fastapi
+uvicorn[standard]
+python-multipart
+httpx
+openai>=1.0.0
+edge-tts>=7.0.0
+Pillow>=10.0.0
+# 说明：whisper（扒链接转写）复用系统 Python 已安装的 openai-whisper + torch；
+# 视频下载复用抖音爆款拆解 skill 的 .venv311(f2)。详见 README。

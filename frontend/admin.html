@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>后台管理 · 一键追爆</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><div class="logo">⚙️</div><span>后台管理</span></div>
+  <div class="userbox"><a href="/">← 返回前台</a></div>
+</div>
+
+<div class="wrap">
+  <div class="grid">
+    <div class="card">
+      <h3><span class="n">设置</span> 模型与计费</h3>
+      <label>大模型 base_url（OpenAI 兼容）</label>
+      <input id="llmUrl" placeholder="https://api.deepseek.com">
+      <label>大模型 api_key</label>
+      <input id="llmKey" type="password" placeholder="sk-...">
+      <label>模型名 model</label>
+      <input id="llmModel" placeholder="deepseek-chat">
+      <hr style="border-color:var(--line);margin:18px 0">
+      <label>数字人服务 provider（none / custom / heygem）</label>
+      <input id="dhProvider" placeholder="none">
+      <label>数字人 base_url</label>
+      <input id="dhUrl" placeholder="https://...">
+      <label>数字人 api_key</label>
+      <input id="dhKey" type="password">
+      <hr style="border-color:var(--line);margin:18px 0">
+      <div class="row">
+        <div><label>每条视频消耗点数</label><input id="cpv" type="number"></div>
+        <div><label>注册赠送点数</label><input id="bonus" type="number"></div>
+      </div>
+      <label>品牌名</label>
+      <input id="brandName">
+      <label>slogan</label>
+      <input id="brandSlogan">
+      <button class="btn" style="width:100%;margin-top:18px" onclick="saveCfg()">保存设置</button>
+      <div class="err" id="cfgMsg" style="color:var(--green)"></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="n">用户</span> 账号与点数</h3>
+      <div id="userList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOKEN = localStorage.getItem("token") || "";
+const $ = (id) => document.getElementById(id);
+async function api(p, o = {}) {
+  o.headers = Object.assign({ "Content-Type": "application/json", "Authorization": "Bearer " + TOKEN }, o.headers || {});
+  const r = await fetch(p, o); const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.detail || "失败"); return d;
+}
+let CFG = null;
+async function load() {
+  try { CFG = await api("/api/admin/config"); }
+  catch (e) { alert("需要管理员登录：" + e.message); location.href = "/"; return; }
+  $("llmUrl").value = CFG.llm.base_url || "";
+  $("llmKey").value = CFG.llm.api_key || "";
+  $("llmModel").value = CFG.llm.model || "";
+  $("dhProvider").value = CFG.digital_human.provider || "none";
+  $("dhUrl").value = CFG.digital_human.base_url || "";
+  $("dhKey").value = CFG.digital_human.api_key || "";
+  $("cpv").value = CFG.credits_per_video;
+  $("bonus").value = CFG.register_bonus;
+  $("brandName").value = CFG.brand.name;
+  $("brandSlogan").value = CFG.brand.slogan;
+  loadUsers();
+}
+async function saveCfg() {
+  CFG.llm = { base_url: $("llmUrl").value.trim(), api_key: $("llmKey").value.trim(), model: $("llmModel").value.trim() };
+  CFG.digital_human = { provider: $("dhProvider").value.trim() || "none", base_url: $("dhUrl").value.trim(), api_key: $("dhKey").value.trim() };
+  CFG.credits_per_video = parseInt($("cpv").value) || 10;
+  CFG.register_bonus = parseInt($("bonus").value) || 30;
+  CFG.brand = { name: $("brandName").value.trim(), slogan: $("brandSlogan").value.trim() };
+  await api("/api/admin/config", { method: "POST", body: JSON.stringify(CFG) });
+  $("cfgMsg").textContent = "✅ 已保存";
+  setTimeout(() => $("cfgMsg").textContent = "", 2000);
+}
+async function loadUsers() {
+  const us = await api("/api/admin/users");
+  $("userList").innerHTML = us.map(u => `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">
+      <div style="flex:1">${u.username}${u.is_admin ? " 👑" : ""}<br>
+        <span style="color:var(--muted);font-size:12px">点数 ${u.credits}</span></div>
+      <input type="number" id="d${u.id}" placeholder="±点数" style="width:90px">
+      <button class="btn ghost" onclick="addCredit(${u.id})">充值</button>
+    </div>`).join("");
+}
+async function addCredit(uid) {
+  const delta = parseInt($("d" + uid).value);
+  if (!delta) return;
+  await api("/api/admin/credits", { method: "POST", body: JSON.stringify({ user_id: uid, delta }) });
+  loadUsers();
+}
+load();
+</script>
+</body>
+</html>
