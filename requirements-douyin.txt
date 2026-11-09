@@ -1,0 +1,3 @@
+# Separate Python 3.11 downloader environment; do not install into the API runtime.
+# Upstream package metadata still says 0.0.1.7, so pin the tested source commit.
+f2 @ https://github.com/Johnserf-Seed/f2/archive/a30feaf92a40f421273b01b6ef36aa83a93f63c0.zip

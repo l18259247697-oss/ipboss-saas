@@ -50,14 +50,16 @@ python3 -m venv /opt/cosyvoice-venv
 # 5) 配置大模型 key
 cp backend/.env.example backend/.env   # 填 DeepSeek key（或登录后台填）
 
-# 6) 起服务（生产用 gunicorn 多进程更稳）
+# 6) 起服务（当前任务执行器只支持单 worker）
 cd /opt/ipboss/backend
 pip3 install gunicorn
-gunicorn app:app -k uvicorn.workers.UvicornWorker -b 0.0.0.0:80 --workers 2 --timeout 1800
+gunicorn app:app -k uvicorn.workers.UvicornWorker -b 0.0.0.0:80 --workers 1 --timeout 1800
 ```
 
 打开 `http://服务器公网IP/` 即可对外试用。
 （要用域名 + HTTPS：域名在国内需 ICP 备案，再用 Nginx 反代 + Let's Encrypt 证书。先用 IP 也能试。）
+
+部署探针：`GET /health` 只检查进程和 SQLite 是否可用；`GET /ready` 还会检查改写模型和口型服务是否已配置，未就绪时返回 503。生产 HTTPS 要把 `COOKIE_SECURE=1`，并在反向代理层限制请求体大小、禁止把 `data/` 或 `outputs/` 目录配置成静态别名、配置访问日志脱敏。
 
 ---
 
@@ -71,6 +73,6 @@ gunicorn app:app -k uvicorn.workers.UvicornWorker -b 0.0.0.0:80 --workers 2 --ti
 ---
 
 ## 四、并发与稳定（人多了再做）
-- Wav2Lip/CosyVoice 推理用任务队列串行或多卡分发，避免抢显存
+- 当前后台线程执行器只适合单 worker 试用；正式售卖前必须换成持久化任务队列并做串行或多卡分发，避免多进程重复执行和抢显存
 - Wav2Lip 的 temp/ 目录按任务隔离（多任务并发时）
 - 大文件（成片）放对象存储 + CDN

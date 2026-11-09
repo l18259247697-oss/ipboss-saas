@@ -1,6 +1,8 @@
 # ===== 密钥 / 隐私（绝不上传）=====
 .env
 backend/.env
+.env.local
+backend/.env.local
 
 # data/ : config.json(含key) + app.db(用户) + faces/ + voices/
 data/

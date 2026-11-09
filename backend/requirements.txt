@@ -2,6 +2,7 @@
 fastapi
 uvicorn[standard]
 python-multipart
+python-dotenv>=1.0.0
 httpx
 openai>=1.0.0
 edge-tts>=7.0.0

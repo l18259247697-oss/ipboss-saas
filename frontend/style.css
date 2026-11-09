@@ -65,7 +65,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--orange)}
 /* 模式切换 */
 .modes{display:flex;gap:10px;margin:6px 0 4px}
 .mode{flex:1;text-align:center;padding:10px;border:1px solid var(--line);border-radius:10px;
-  cursor:pointer;background:var(--panel2);font-size:13px}
+  cursor:pointer;background:var(--panel2);color:var(--text);font-family:inherit;font-size:13px}
 .mode.on{border-color:var(--orange);background:rgba(255,138,0,.12);color:var(--orange);font-weight:700}
 
 /* 形象库 */
@@ -92,6 +92,9 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--orange)}
 
 /* 结果区 */
 .result-box{margin-top:0}
+#jobHistory{margin-bottom:16px;max-width:100%}
+.workspace-notice{color:#ffd080;font-size:13px;overflow-wrap:anywhere;margin:10px 0}
+#restoreRetry{margin-bottom:16px}
 .field{margin-bottom:16px}
 .field .ft{font-size:13px;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between}
 .field .fc{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;
@@ -99,6 +102,8 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--orange)}
 .copybtn{font-size:12px;color:var(--orange);cursor:pointer;background:none;border:none}
 audio,video{width:100%;border-radius:10px;margin-top:6px;background:#000}
 video{max-height:520px}
+.media-status{margin-top:8px;color:#ffd080;font-size:13px;overflow-wrap:anywhere}
+.media-status.error{color:#ff9c8d}
 .placeholder-tip{font-size:12px;color:var(--orange);background:rgba(255,138,0,.1);
   border:1px solid rgba(255,138,0,.3);border-radius:8px;padding:8px 12px;margin-top:8px}
 .empty{color:var(--muted);text-align:center;padding:40px 0}
@@ -108,7 +113,7 @@ video{max-height:520px}
 
 /* 登录 */
 .auth-mask{position:fixed;inset:0;background:rgba(8,9,13,.92);display:grid;place-items:center;z-index:50}
-.auth-card{width:380px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px}
+.auth-card{width:min(380px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px}
 .auth-card h2{text-align:center;margin-bottom:6px}
 .auth-card .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:20px}
 .auth-tabs{display:flex;margin-bottom:18px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
@@ -116,3 +121,17 @@ video{max-height:520px}
 .auth-tabs div.on{background:var(--orange);color:#fff;font-weight:700}
 .err{color:#ff6b6b;font-size:13px;margin-top:10px;text-align:center;min-height:18px}
 .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:30px;padding-bottom:20px}
+
+@media(max-width:620px){
+  .topbar{flex-wrap:wrap;gap:12px;padding:12px 16px}
+  .brand{white-space:nowrap}
+  .brand .slogan{display:none}
+  .userbox{flex-wrap:wrap;gap:10px;min-width:0}
+  .userbox #hello{overflow-wrap:anywhere}
+  .wrap{padding:16px}
+  .headline h1{font-size:24px;letter-spacing:0}
+  .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 8px}
+  .step::after{display:none}
+  .card{padding:16px;min-width:0}
+  .mode{min-width:0}
+}
